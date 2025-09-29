@@ -1,0 +1,39 @@
+# Copyright (c) 2022-2023 Nordic Semiconductor ASA
+# SPDX-License-Identifier: Apache-2.0
+
+name: Build Zephyr samples with Twister
+
+# Workflow triggers on PRs, pushes to main, once per day at midnight and can be started manually.
+on:
+  # By default, pull_request includes: opened, synchronize, or reopened
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  # When triggered manually, ask for Zephyr and MCUBoot versions to check out
+  workflow_dispatch:
+    inputs:
+      version_zephyr:
+        description: 'Which Zephyr version to checkout?'
+        required: true
+        default: 'main'
+
+jobs:
+  build_zephyr_with_twister:
+    runs-on: ubuntu-22.04
+    # Docker image from the zephyr upstream. Includes SDK and other required tools
+    container:
+      image: zephyrprojectrtos/ci:v0.27.6
+      options: '--entrypoint /bin/bash'
+      volumes:
+        - /home/runners/zephyrproject:/github/cache/zephyrproject
+    env:
+      ZEPHYR_SDK_INSTALL_DIR: /opt/toolchains/zephyr-sdk-0.17.4
+
+    steps:
+      - name: test
+        run: |
+          mount
+          df -h /
